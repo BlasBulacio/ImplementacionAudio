@@ -5,16 +5,44 @@
 
 using namespace std;
 
-bool formatoValido(audio a, int canal, int profundidad) {
-    return true;
+using namespace std;
+
+bool estaEnRangoDeProfundidad (vector<int> a, int p){
+    bool res = true;
+    for (int i = 0; i<a.size(); i++ ){
+        if (a[i] < (-2^(p-1)) || (2^(p-1) -1) > a[i]){
+            res = false;
+        }
+
+    }
+    return res;
+}
+
+bool formatoValido(vector<int> a, int canal, int profundidad) {
+    if (a.size() < 1 || a.size() % canal != 0  || !estaEnRangoDeProfundidad(a,profundidad))
+        return true;
 }
 
 audio replicar(audio a, int canal, int profundidad) {
-    return a;
+    audio result;
+    for (int i = 0; i< a.size(); i++){
+        for (int j = 0; j< canal; j++){
+            result.push_back(a[i]);
+        }
+    }
+    return result;
 }
 
 audio revertirAudio(audio a, int canal, int profundidad) {
-    return a;
+    audio result;
+    int cantDeBloques = a.size() / canal;
+    for(int i = cantDeBloques-1; i > -1; i--){
+        for(int j = 0; j<canal; j++) {
+            result.push_back(a[(canal*i)+j]);
+        }
+
+    }
+    return result;
 }
 
 void magnitudAbsolutaMaxima(audio a, int canal, int profundidad, vector<int> &maximos, vector<int> &posicionesMaximos) {
