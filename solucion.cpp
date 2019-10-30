@@ -45,6 +45,8 @@ audio revertirAudio(audio a, int canal, int profundidad) {
     return result;
 }
 
+//Tiene complejidad O(n) puesto que el T(n) =  k0 +(k1 * n/canal)* k3*canal.
+
 void magnitudAbsolutaMaxima(audio a, int canal, int profundidad, vector<int> &maximos, vector<int> &posicionesMaximos) {
     maximos={};
     posicionesMaximos={};
