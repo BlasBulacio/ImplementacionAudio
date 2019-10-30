@@ -98,7 +98,7 @@ void bajarCalidad(vector<audio> & as, int profundidad1, int profundidad2) {
     }
 }
 
-ool esHard(audio a,int longitud, int umbral){
+bool esHard(audio a,int longitud, int umbral){
     int cont=0;
     for(int i=0;i<a.size();i++){
         if(a[i]>umbral){
