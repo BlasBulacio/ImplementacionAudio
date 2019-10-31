@@ -124,12 +124,12 @@ void reemplazarSubAudio(audio& a, audio a1, audio a2, int profundidad) {
 }
 
 void maximosTemporales(audio a, int profundidad, vector<int> tiempos, vector<int>& maximos, vector<pair<int,int> > &intervalos ) { //O(|tiempos|*|a|)
-    int d;
-    int h;
+    int d; //desde
+    int h; //hasta
     int max;
     for(int i=0;i<tiempos.size();i++){ //O(|tiempos|)
-        d=0; //desde
-        h=tiempos[i]-1; //hasta
+        d=0; 
+        h=tiempos[i]-1; 
         max=a[0];
         for(int j=0;j<a.size();j++){ //O(|a|)
         if(j<=h){
