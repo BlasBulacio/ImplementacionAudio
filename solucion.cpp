@@ -76,10 +76,31 @@ void reemplazarSubAudio(audio& a, audio a1, audio a2, int profundidad) {
 
 }
 
-void maximosTemporales(audio a, int profundidad, vector<int> tiempos, vector<int>& maximos, vector<pair<int,int> > &intervalos ) {
-
+void maximosTemporales(audio a, int profundidad, vector<int> tiempos, vector<int>& maximos, vector<pair<int,int> > &intervalos ) { //O(|tiempos|*|a|)
+    int d;
+    int h;
+    int max;
+    for(int i=0;i<tiempos.size();i++){ //O(|tiempos|)
+        d=0; //desde
+        h=tiempos[i]-1; //hasta
+        max=a[0];
+        for(int j=0;j<a.size();j++){ //O(|a|)
+        if(j<=h){
+            if(a[j]>=max){
+                max=a[j];
+                }
+            }else{
+            intervalos.push_back(make_pair(d,h));
+            maximos.push_back(max);
+            d=j;
+            h=j+tiempos[i]-1;
+            max=a[j];
+            }
+        }
+        maximos.push_back(max);                  // Agrego esto porque si j<=h y h>=audio.size() entonces nunca entra al else a pushear las cosas
+        intervalos.push_back(make_pair(d,h));
+    }
 }
-
 void limpiarAudio(audio& a, int profundidad, vector<int>& outliers) {
 
 
