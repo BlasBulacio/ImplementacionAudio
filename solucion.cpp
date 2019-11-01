@@ -159,6 +159,46 @@ void maximosTemporales(audio a, int profundidad, vector<int> tiempos, vector<int
 
 void limpiarAudio(audio& a, int profundidad, vector<int>& outliers) {
 
+    audio audio_ordenado = ordenado(a);
+    outliers = {};
+int numeroDePosiblesOutliers = a.size() - floor(a.size()*0.95);
+int valorMinimoParaSerOutlier = audio_ordenado[a.size()-numeroDePosiblesOutliers];
+int posDelPrimerNoOutlier= -1;
+int numeroDeOutliers= 0;
+int numeroDeNoOutliers = 0;
+int numeroDeNoOutliersVistos = 0;
+int NoOutlierAnterior = -1;
+for (int i= 0; i<a.size(); i++){
+    if (esOutlier (a[i],valorMinimoParaSerOutlier)) {
+        numeroDeOutliers++;
+        outliers.push_back(i);
+
+    } else {
+        if (posDelPrimerNoOutlier == -1) {
+            posDelPrimerNoOutlier = i;
+        }
+        numeroDeNoOutliers++;
+    }
+}
+
+
+for (int j=0; j<a.size(); j++){
+    if (esOutlier(a[j],valorMinimoParaSerOutlier)){
+        if (j < posDelPrimerNoOutlier){
+            a[j] = NoOutlierSiguiente(a,j, valorMinimoParaSerOutlier);
+        }
+        if (j > posDelPrimerNoOutlier && numeroDeNoOutliersVistos < numeroDeNoOutliers){
+            a[j] = (NoOutlierAnterior + NoOutlierSiguiente(a,j, valorMinimoParaSerOutlier) )/ 2;
+        }
+        if (numeroDeNoOutliersVistos == numeroDeNoOutliers){
+            a[j] = NoOutlierAnterior;
+        }
+
+    } else {
+        numeroDeNoOutliersVistos++;
+        NoOutlierAnterior = a[j];
+    }
+}
 
 }
 
