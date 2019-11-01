@@ -157,6 +157,35 @@ void maximosTemporales(audio a, int profundidad, vector<int> tiempos, vector<int
 
 }
 
+audio ordenado (audio a) {
+    int i = 0;
+    int j = 0;
+    for (int i = 0; i < a.size()-1; i++) {
+        for (int j = 0; j < a.size() - i-1; j++) {
+            if (a[j]  > a[j + 1]) {
+                int c = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = c;
+            }
+        }
+    }
+    return a;
+}
+
+bool esOutlier(int valor, int valorminDeOutlier){
+ if (valor > valorminDeOutlier){
+     return true;
+ } else {
+     return false;
+ }
+}
+
+int NoOutlierSiguiente(audio a, int pos, int valorMinimoParaSerOutlier) {
+    while (esOutlier(a[pos],valorMinimoParaSerOutlier)) {
+        pos++;
+    }
+    return a[pos];
+
 void limpiarAudio(audio& a, int profundidad, vector<int>& outliers) {
 
     audio audio_ordenado = ordenado(a);
