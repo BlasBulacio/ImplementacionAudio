@@ -193,13 +193,12 @@ void limpiarAudio(audio& a, int profundidad, vector<int>& outliers) {
 int numeroDePosiblesOutliers = a.size() - floor(a.size()*0.95);
 int valorMinimoParaSerOutlier = audio_ordenado[a.size()-numeroDePosiblesOutliers];
 int posDelPrimerNoOutlier= -1;
-int numeroDeOutliers= 0;
 int numeroDeNoOutliers = 0;
 int numeroDeNoOutliersVistos = 0;
 int NoOutlierAnterior = -1;
 for (int i= 0; i<a.size(); i++){
     if (esOutlier (a[i],valorMinimoParaSerOutlier)) {
-        numeroDeOutliers++;
+      
         outliers.push_back(i);
 
     } else {
