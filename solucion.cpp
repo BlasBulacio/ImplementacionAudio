@@ -2,7 +2,7 @@
 #include "auxiliares.h"
 #include <algorithm>
 #include <cmath>
-
+#include <iostream>
 using namespace std;
 
 using namespace std;
@@ -10,7 +10,7 @@ using namespace std;
 bool estaEnRangoDeProfundidad (vector<int> a, int p){
     bool res = true;
     for (int i = 0; i<a.size(); i++ ){
-        if (a[i] < (-2^(p-1)) || (2^(p-1) -1) > a[i]){
+        if (a[i] < -pow(2,p-1) || pow(2,p-1)-1 < a[i]){
             res = false;
         }
 
@@ -20,11 +20,11 @@ bool estaEnRangoDeProfundidad (vector<int> a, int p){
 
 bool formatoValido(vector<int> a, int canal, int profundidad) {
     if (a.size() < 1 || a.size() % canal != 0  || !estaEnRangoDeProfundidad(a,profundidad))
-        return true;
+        return false;
 }
 
 audio replicar(audio a, int canal, int profundidad) {
-    audio result;
+    audio result = {};
     for (int i = 0; i< a.size(); i++){
         for (int j = 0; j< canal; j++){
             result.push_back(a[i]);
@@ -54,7 +54,7 @@ void magnitudAbsolutaMaxima(audio a, int canal, int profundidad, vector<int> &ma
         int max=a[0+i];
         int pos=0+i;
         for(int j=i;j<a.size();j=j+canal){
-            if(abs(a[j])>=max){
+            if(abs(a[j])>max){
                 max=a[j];
                 pos=j;
             }
@@ -65,19 +65,19 @@ void magnitudAbsolutaMaxima(audio a, int canal, int profundidad, vector<int> &ma
 }
 
 int clip(int v1, int v2, int p){
-    if((-2)^(p-1)<=v2-v1<=(2^(p-1)-1)){
+    if(-pow(2,p-1) <= v2-v1 && v2-v1 <= pow(2,p-1)-1){
         return v2-v1;
     }else{
-        if(v2-v1<(-2)^(p-1)){
-            return (-2)^(p-1);
+        if(v2-v1 < -pow(2,p-1)){
+            return -pow(2,p-1) ;
         }
-        if(v2-v1>(2^(p-1)-1)){
-            return (2^(p-1)-1);
+        if(v2-v1> pow(2,p-1)-1){
+            return pow(2,p-1)-1;
         }
     }
 }
 
-audio redirigir(audio a, int canal, int profundidad) {
+audio redirigir (audio a, int canal, int profundidad) {
     int n;
     if(canal==1){
         n=1;
@@ -87,13 +87,14 @@ audio redirigir(audio a, int canal, int profundidad) {
     for(int i=canal-1;i<a.size();i=i+2){
         a[i+n]=clip(a[i],a[i+n],profundidad);
     }
+
     return a;
 }
 
 void bajarCalidad(vector<audio> & as, int profundidad1, int profundidad2) {
     for(int i=0;i<as.size();i++){
         for(int j=0;j<as[i].size();j++){
-            as[i][j]= static_cast<int>(as[i][j]/(2^(profundidad1-profundidad2)));
+            as[i][j]= floor(as[i][j]/(2^(profundidad1-profundidad2)));
         }
     }
 }
@@ -110,7 +111,7 @@ bool esHard(audio a,int longitud, int umbral){
             cont=0;
         }
     }
-        return false;
+    return false;
 }
 
 
@@ -146,10 +147,10 @@ vector<int> concatenarSecuencias(vector<int> seq1, vector<int> seq2){
 
 void reemplazarSubAudio(audio& a, audio a1, audio a2, int profundidad) {
     for(int i=0;i<=a.size()-a1.size()+1;i=i+1){
-         if(subseq(a,i,i+a1.size())==a1){
-             a=concatenarSecuencias(concatenarSecuencias(subseq(a,0,i),a2),subseq(a,i+a1.size(),a.size()));
+        if(subseq(a,i,i+a1.size())==a1){
+            a=concatenarSecuencias(concatenarSecuencias(subseq(a,0,i),a2),subseq(a,i+a1.size(),a.size()));
             break;
-         }
+        }
     }
 }
 
@@ -185,20 +186,20 @@ int NoOutlierSiguiente(audio a, int pos, int valorMinimoParaSerOutlier) {
         pos++;
     }
     return a[pos];
-
+}
 void limpiarAudio(audio& a, int profundidad, vector<int>& outliers) {
 
     audio audio_ordenado = ordenado(a);
     outliers = {};
 int numeroDePosiblesOutliers = a.size() - floor(a.size()*0.95);
-int valorMinimoParaSerOutlier = audio_ordenado[a.size()-numeroDePosiblesOutliers];
+int valorMinimoParaSerOutlier = audio_ordenado[a.size()-numeroDePosiblesOutliers-1];
 int posDelPrimerNoOutlier= -1;
 int numeroDeNoOutliers = 0;
 int numeroDeNoOutliersVistos = 0;
 int NoOutlierAnterior = -1;
 for (int i= 0; i<a.size(); i++){
     if (esOutlier (a[i],valorMinimoParaSerOutlier)) {
-      
+
         outliers.push_back(i);
 
     } else {
@@ -215,10 +216,10 @@ for (int j=0; j<a.size(); j++){
         if (j < posDelPrimerNoOutlier){
             a[j] = NoOutlierSiguiente(a,j, valorMinimoParaSerOutlier);
         }
-        if (j > posDelPrimerNoOutlier && numeroDeNoOutliersVistos < numeroDeNoOutliers){
-            a[j] = (NoOutlierAnterior + NoOutlierSiguiente(a,j, valorMinimoParaSerOutlier) )/ 2;
+        else if (j > posDelPrimerNoOutlier && numeroDeNoOutliersVistos < numeroDeNoOutliers){
+            a[j] = floor ((NoOutlierAnterior + NoOutlierSiguiente(a,j, valorMinimoParaSerOutlier) )/ 2);
         }
-        if (numeroDeNoOutliersVistos == numeroDeNoOutliers){
+        else if (numeroDeNoOutliersVistos == numeroDeNoOutliers){
             a[j] = NoOutlierAnterior;
         }
 
@@ -229,4 +230,3 @@ for (int j=0; j<a.size(); j++){
 }
 
 }
-
