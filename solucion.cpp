@@ -3,7 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-using namespace std;
+#include <fstream>
+#include <usp10.h>
 
 using namespace std;
 
@@ -45,7 +46,7 @@ audio revertirAudio(audio a, int canal, int profundidad) {
     return result;
 }
 
-//Tiene complejidad O(n) puesto que el T(n) =  k0 +(k1 * n/canal)* k3*canal.
+//Tiene complejidad O(n) puesto que el T(n) =  k0 + k1 * n/canal* k3 *canal =ko + k1*k3*n
 
 void magnitudAbsolutaMaxima(audio a, int canal, int profundidad, vector<int> &maximos, vector<int> &posicionesMaximos) {
     maximos={};
@@ -148,15 +149,38 @@ vector<int> concatenarSecuencias(vector<int> seq1, vector<int> seq2){
 void reemplazarSubAudio(audio& a, audio a1, audio a2, int profundidad) {
     for(int i=0;i<=a.size()-a1.size()+1;i=i+1){
         if(subseq(a,i,i+a1.size())==a1){
-            a=concatenarSecuencias(concatenarSecuencias(subseq(a,0,i),a2),subseq(a,i+a1.size(),a.size()));
+            a=concatenarSecuencias(concatenarSecuencias(subseq(a,0,i),a2),subseq(a,i+a2.size(),a.size()));
             break;
         }
     }
 }
 
-void maximosTemporales(audio a, int profundidad, vector<int> tiempos, vector<int>& maximos, vector<pair<int,int> > &intervalos ) {
-
+void maximosTemporales(audio a, int profundidad, vector<int> tiempos, vector<int>& maximos, vector<pair<int,int> > &intervalos ) { //O(|tiempos|*|a|)
+    int d; //desde
+    int h; //hasta
+    int max;
+    for(int i=0;i<tiempos.size();i++){ //O(|tiempos|)
+        d=0;
+        h=tiempos[i]-1;
+        max=a[0];
+        for(int j=0;j<a.size();j++){ //O(|a|)
+            if(j<=h){
+                if(a[j]>=max){
+                    max=a[j];
+                }
+            }else{
+                intervalos.push_back(make_pair(d,h));
+                maximos.push_back(max);
+                d=j;
+                h=j+tiempos[i]-1;
+                max=a[j];
+            }
+        }
+        maximos.push_back(max);                  // Agrego esto porque si j<=h y h>=audio.size() entonces nunca entra al else a pushear las cosas
+        intervalos.push_back(make_pair(d,h));
+    }
 }
+
 
 audio ordenado (audio a) {
     int i = 0;
@@ -230,3 +254,31 @@ for (int j=0; j<a.size(); j++){
 }
 
 }
+//Tiene complejidad O(n^2) puesto que ordenar el audio es O(n^2), recorrer el audio una vez para sacar información es O(n), y recorrerla por segunda vez remplazando los outliers es O(n) en el peor de los casos.
+// O(n^2 + 2n) ~ O(n^2)
+
+
+void escribirAudio(audio a, string nombreArchivo, int c) {
+
+    ofstream fout;
+    fout.open(nombreArchivo);
+    fout << c;
+    for (int i = 0; i <a.size() ; i++){
+        fout << a[i];
+    }
+}
+
+tuple<int, audio> leerAudio(string nombreArchivo){
+    ifstream fin;
+    fin.open(nombreArchivo);
+    int canal;
+    fin >> canal;
+    vector<int> audio;
+   while( !fin.eof()){
+       int a;
+       fin >> a;
+       audio.push_back(a);
+   }
+   return make_tuple(canal,audio);
+}
+
