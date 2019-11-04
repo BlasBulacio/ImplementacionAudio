@@ -94,8 +94,8 @@ audio redirigir (audio a, int canal, int profundidad) {
 
 void bajarCalidad(vector<audio> & as, int profundidad1, int profundidad2) {
     for(int i=0;i<as.size();i++){
-        for(int j=0;j<as[i].size();j++){
-            as[i][j]= floor(as[i][j]/(2^(profundidad1-profundidad2)));
+        for(int j=0;j<as[i].size() ;j++){
+            as[i][j]= floor(as[i][j]/pow(2,profundidad1-profundidad2));
         }
     }
 }
