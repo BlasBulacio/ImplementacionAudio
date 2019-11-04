@@ -99,7 +99,6 @@ void bajarCalidad(vector<audio> & as, int profundidad1, int profundidad2) {
         }
     }
 }
-
 bool esHard(audio a,int longitud, int umbral){
     int cont=0;
     for(int i=0;i<a.size();i++){
@@ -147,9 +146,9 @@ vector<int> concatenarSecuencias(vector<int> seq1, vector<int> seq2){
 }
 
 void reemplazarSubAudio(audio& a, audio a1, audio a2, int profundidad) {
-    for(int i=0;i<=a.size()-a1.size()+1;i=i+1){
-        if(subseq(a,i,i+a1.size())==a1){
-            a=concatenarSecuencias(concatenarSecuencias(subseq(a,0,i),a2),subseq(a,i+a2.size(),a.size()));
+    for (int i = 0; i <= a.size() - a1.size() + 1; i = i + 1) {
+        if (subseq(a, i, i + a1.size()) == a1) {
+            a = concatenarSecuencias(concatenarSecuencias(subseq(a, 0, i), a2), subseq(a, i + a1.size(), a.size()));
             break;
         }
     }
@@ -216,6 +215,9 @@ void limpiarAudio(audio& a, int profundidad, vector<int>& outliers) {
     audio audio_ordenado = ordenado(a);
     outliers = {};
 int numeroDePosiblesOutliers = a.size() - floor(a.size()*0.95);
+if (a.size() <= 19){
+    numeroDePosiblesOutliers = 0;
+}
 int valorMinimoParaSerOutlier = audio_ordenado[a.size()-numeroDePosiblesOutliers-1];
 int posDelPrimerNoOutlier= -1;
 int numeroDeNoOutliers = 0;
@@ -258,27 +260,29 @@ for (int j=0; j<a.size(); j++){
 // O(n^2 + 2n) ~ O(n^2)
 
 
-void escribirAudio(audio a, string nombreArchivo, int c) {
+tuple<int, audio> leerAudio(string nombreArchivo) {
+    ifstream fin;
+    fin.open(nombreArchivo);
+    int c;
+    fin >> c;
+    audio audio;
+    while (!fin.eof()) {
+        int a;
+        fin >> a;
+        audio.push_back(a);
+    }
+    fin.close();
+    return make_tuple(c, audio);
+}
 
+void escribirAudio(audio a, string nombreArchivo, int c){
     ofstream fout;
     fout.open(nombreArchivo);
     fout << c;
-    for (int i = 0; i <a.size() ; i++){
+    for( int i = 0; i<a.size();i++){
         fout << a[i];
     }
-}
 
-tuple<int, audio> leerAudio(string nombreArchivo){
-    ifstream fin;
-    fin.open(nombreArchivo);
-    int canal;
-    fin >> canal;
-    vector<int> audio;
-   while( !fin.eof()){
-       int a;
-       fin >> a;
-       audio.push_back(a);
-   }
-   return make_tuple(canal,audio);
-}
+    fout.close();
 
+}
